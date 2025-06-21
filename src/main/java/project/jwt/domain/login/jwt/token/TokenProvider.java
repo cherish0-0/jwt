@@ -4,15 +4,26 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import project.jwt.domain.login.dto.TokenInfo;
 import project.jwt.domain.login.dto.TokenValidationResult;
 import project.jwt.domain.member.Member;
+import project.jwt.domain.member.UserPrinciple;
 
 import java.security.Key;
 import java.time.*;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Slf4j
 public class TokenProvider {
@@ -79,5 +90,16 @@ public class TokenProvider {
 			log.info("잘못된 JWT 토큰");
 			return new TokenValidationResult(TokenStatus.TOKEN_WRONG_SIGNATURE, null, null, null);
 		}
+	}
+
+	public Authentication getAuthentication(String token, Claims claims) {
+		List<? extends GrantedAuthority> authorities = Arrays.stream(
+				claims.get(AUTHORITIES_KEY).toString().split(","))
+			.map(SimpleGrantedAuthority::new)
+			.toList();
+
+		UserPrinciple principle = new UserPrinciple(claims.getSubject(), claims.get(USERNAME_KEY, String.class),
+			authorities);
+		return new UsernamePasswordAuthenticationToken(principle, token, authorities);
 	}
 }
