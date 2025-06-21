@@ -4,7 +4,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import project.jwt.domain.login.dto.TokenInfo;
 import project.jwt.domain.login.dto.TokenValidationResult;
@@ -14,11 +13,9 @@ import project.jwt.domain.member.UserPrinciple;
 import java.security.Key;
 import java.time.*;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,12 +30,12 @@ public class TokenProvider {
 	private static final String USERNAME_KEY = "username";
 
 	private final Key hashKey;
-	private final Duration SecondsToAdd;
+	private final Duration secondsToAdd;
 
-	public TokenProvider(String secrete, Duration SecondsToAdd) {
+	public TokenProvider(String secrete, Duration secondsToAdd) {
 		byte[] keyBytes = Decoders.BASE64.decode(secrete);
 		this.hashKey = Keys.hmacShaKeyFor(keyBytes);
-		this.SecondsToAdd = SecondsToAdd;
+		this.secondsToAdd = secondsToAdd;
 	}
 
 	/**
@@ -50,7 +47,7 @@ public class TokenProvider {
 	public TokenInfo createToken(Member member) {
 		String tokenId = UUID.randomUUID().toString();
 		Date issuedAt = Date.from(Instant.now());
-		Date expiration = Date.from(issuedAt.toInstant().plus(SecondsToAdd));
+		Date expiration = Date.from(issuedAt.toInstant().plus(this.secondsToAdd));
 
 		String accessToken = Jwts.builder()
 			.setSubject(member.getEmail())
@@ -68,6 +65,7 @@ public class TokenProvider {
 			.accessToken(accessToken)
 			.accessTokenExpireTime(expiration)
 			.build();
+
 	}
 
 	public TokenValidationResult validateToken(String token) {

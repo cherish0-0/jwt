@@ -10,15 +10,17 @@ import project.jwt.domain.member.Member;
 import project.jwt.domain.member.Role;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.*;
 
 @Slf4j
 class TokenProviderTest {
 	private final String secrete = "dGhpcyBpcyBteSBoaWRkZW4gand0IHNlY3JldGUga2V5LCB3aGF0IGlzIHlvdXIgand0IHNlY3JldGUga2V5Pw==";
-	private final Duration SecondsToAdd = Duration.of(3, ChronoUnit.SECONDS); // 3초
-	private final TokenProvider tokenProvider = new TokenProvider(secrete, SecondsToAdd);
+	private final Duration secondsToAdd = Duration.of(3, ChronoUnit.SECONDS); // 3초
+	private final TokenProvider tokenProvider = new TokenProvider(secrete, secondsToAdd);
 
 	@Test
 	void createToken() {
@@ -40,6 +42,8 @@ class TokenProviderTest {
 		TokenValidationResult result = tokenProvider.validateToken(accessToken);
 
 		assertThat(result.isValid()).isTrue();
+		log.info(Date.from(Instant.now()).toString());
+		log.info(token.getAccessTokenExpireTime().toString());
 	}
 
 	private Member getMember() {

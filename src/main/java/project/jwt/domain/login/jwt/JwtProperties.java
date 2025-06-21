@@ -11,5 +11,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class JwtProperties {
 	private String header;
 	private String secret;
-	private Duration SecondsToAdd;
+	private Duration secondsToAdd;
 }
