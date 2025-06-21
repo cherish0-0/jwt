@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import project.jwt.domain.login.dto.TokenInfo;
+import project.jwt.domain.login.jwt.blacklist.AccessTokenBlackList;
 import project.jwt.domain.login.jwt.token.TokenProvider;
 import project.jwt.domain.member.Member;
 import project.jwt.domain.member.MemberRepository;
@@ -29,6 +30,7 @@ public class LoginService {
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TokenProvider tokenProvider;
+	private final AccessTokenBlackList accessTokenBlackList;
 
 	public Member createMember(MemberCreateDto memberCreateDto) {
 		checkPasswordStrength(memberCreateDto.getPassword());
@@ -74,6 +76,10 @@ public class LoginService {
 			log.info("비밀번호가 일치하지 않음: {}", password);
 			throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
 		}
+	}
+
+	public void logout(String accessToken, String email) {
+		accessTokenBlackList.setBlackList(accessToken, email);
 	}
 
 	public Member getUserInfo(String email) {

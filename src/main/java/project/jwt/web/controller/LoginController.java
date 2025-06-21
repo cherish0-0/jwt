@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
@@ -65,5 +66,14 @@ public class LoginController {
 		Member foundMember = loginService.getUserInfo(userPrinciple.getEmail());
 
 		return new ApiResponseJson(HttpStatus.OK, foundMember);
+	}
+
+	@PostMapping("/api/account/logout")
+	public ApiResponseJson logout(@AuthenticationPrincipal UserPrinciple userPrinciple,
+		@RequestHeader("Authorization") String authHeader) {
+		log.info("로그아웃 요청 이메일: {}", userPrinciple.getEmail());
+		loginService.logout(authHeader.substring(7), userPrinciple.getEmail());
+
+		return new ApiResponseJson(HttpStatus.OK, "로그아웃이 완료되었습니다. BYE!");
 	}
 }

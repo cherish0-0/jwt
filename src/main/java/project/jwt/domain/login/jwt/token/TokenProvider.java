@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.SecurityException;
 import lombok.extern.slf4j.Slf4j;
 import project.jwt.domain.login.dto.TokenInfo;
 import project.jwt.domain.login.dto.TokenValidationResult;
+import project.jwt.domain.login.jwt.blacklist.AccessTokenBlackList;
 import project.jwt.domain.member.Member;
 import project.jwt.domain.member.UserPrinciple;
 
@@ -31,11 +32,13 @@ public class TokenProvider {
 
 	private final Key hashKey;
 	private final Duration secondsToAdd;
+	private final AccessTokenBlackList accessTokenBlackList;
 
-	public TokenProvider(String secrete, Duration secondsToAdd) {
+	public TokenProvider(String secrete, Duration secondsToAdd, AccessTokenBlackList accessTokenBlackList) {
 		byte[] keyBytes = Decoders.BASE64.decode(secrete);
 		this.hashKey = Keys.hmacShaKeyFor(keyBytes);
 		this.secondsToAdd = secondsToAdd;
+		this.accessTokenBlackList = accessTokenBlackList;
 	}
 
 	/**
@@ -99,5 +102,13 @@ public class TokenProvider {
 		UserPrinciple principle = new UserPrinciple(claims.getSubject(), claims.get(USERNAME_KEY, String.class),
 			authorities);
 		return new UsernamePasswordAuthenticationToken(principle, token, authorities);
+	}
+
+	public boolean isAccessTokenBlackList(String accessToken) {
+		if (accessTokenBlackList.isTokenBlackList(accessToken)) {
+			log.info("Blacklisted access token={}", accessToken);
+			return true;
+		}
+		return false;
 	}
 }

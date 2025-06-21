@@ -27,7 +27,7 @@ public class SecurityConfig {
 	private final JwtFilter jwtFilter;
 	private final String[] adminUrl = {"/admin/**"};
 	private final String[] permitAllUrl = {"/error", "/api/account/auth"};
-	private final String[] anonymousUrl = {"/api/account/create"};
+	private final String[] anonymousUrl = {"/api/account/create", "/api/account/login"};
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
@@ -44,7 +44,9 @@ public class SecurityConfig {
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(adminUrl).hasAnyRole("ADMIN")
+				// permitAll: 모든 사용자에게 허용
 				.requestMatchers(permitAllUrl).permitAll()
+				// anonymous: 인증되지 않은 사용자에게 허용
 				.requestMatchers(anonymousUrl).anonymous()
 				.anyRequest().authenticated()
 			)

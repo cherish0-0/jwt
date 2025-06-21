@@ -42,6 +42,12 @@ public class JwtFilter extends OncePerRequestFilter {
 		TokenValidationResult tokenValidationResult = tokenProvider.validateToken(token);
 		if (!tokenValidationResult.isValid()) {
 			handleWrongToken(request, response, filterChain, tokenValidationResult);
+			return;
+		}
+
+		if (tokenProvider.isAccessTokenBlackList(token)) {
+			handleBlackListedToken(request, response, filterChain);
+			return;
 		}
 
 		handleValidToken(token, tokenValidationResult);
@@ -52,6 +58,12 @@ public class JwtFilter extends OncePerRequestFilter {
 		Authentication authentication = tokenProvider.getAuthentication(token, tokenValidationResult.getClaims());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		log.info("AUTH SUCCESS: {}", authentication.getName());
+	}
+
+	private void handleBlackListedToken(HttpServletRequest request, HttpServletResponse response,
+		FilterChain filterChain) throws IOException, ServletException {
+		request.setAttribute("result", new TokenValidationResult(TokenStatus.TOKEN_IS_BLACKLIST, null, null, null));
+		filterChain.doFilter(request, response);
 	}
 
 	private static void handleWrongToken(HttpServletRequest request, HttpServletResponse response,

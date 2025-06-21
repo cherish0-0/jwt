@@ -12,11 +12,16 @@ spring:
       hibernate:
         show_sql: true
         highlight_sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
 
 jwt:
   header: Authorization
   secret: dGhpcyBpcyBteSBoaWRkZW4gand0IHNlY3JldGUga2V5LCB3aGF0IGlzIHlvdXIgand0IHNlY3JldGUga2V5Pw==
-  access-token-validity-in-seconds: 360000
+  seconds-to-add: 360s
 
 logging:
   level:
