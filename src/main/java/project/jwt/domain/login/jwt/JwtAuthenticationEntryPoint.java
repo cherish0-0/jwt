@@ -6,8 +6,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import project.jwt.domain.login.dto.TokenValidationResult;
 import project.jwt.domain.login.jwt.token.TokenStatus;
-import project.jwt.web.json.ApiResponseJson;
-import project.jwt.web.json.ResponseStatusCode;
+import project.jwt.web.controller.json.ApiResponseJson;
+import project.jwt.web.controller.json.ResponseStatusCode;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
